@@ -52,6 +52,12 @@ l_linha = Label(frame_logo, text='', width= 445, height=1, anchor=NW, font=('Ivy
 l_linha.place(x=0, y=57)
 
 #Criando as funções
+global iniciar
+global websites
+
+iniciar = BooleanVar()
+
+
 
 #Função que permite retornar na listbox os sites que adicionamos
 def ver_site():
@@ -115,6 +121,51 @@ def remover_site():
         sites.append(i)
     deletar_site(sites[0])
 
+def desbloquear_site():
+    iniciar.set(False)
+    messagebox.showinfo('Site', "Os sites na lista foram Desbloqueados")
+    bloqueador_site()
+
+def bloquear_site():
+    iniciar.set(True)
+    messagebox.showinfo('Site', "Os sites na lista foram Bloqueados")
+    bloqueador_site()
+
+
+#Função bloqueador site
+def bloqueador_site():
+
+    #caminho do arquivo host do windows
+    local_do_host = r'C:\Windows\System32\drivers\etc\hosts'
+    redirecionar = '127.0.0.1'
+
+    websites = []
+
+    #acessar o arquivo csv
+    with open('sites.csv') as file:
+        ler_csv = csv.reader(file)
+        for row in ler_csv:
+            websites.append(row[0])
+#condição para bloquear
+    if iniciar.get() == True:
+        with open(local_do_host, 'r+') as arquivo:
+            conteudo=arquivo.read()
+            for site in websites:
+                if site in conteudo:
+                    pass
+                else:
+                    arquivo.write(redirecionar+" "+site+"\n")
+# condição para desbloquear
+    else:
+        with open(local_do_host, 'r+') as arquivo:
+            conteudo=arquivo.readlines()
+            arquivo.seek(0)
+
+            for line in conteudo:
+                if not any(site in line for site in websites):
+                    arquivo.write(line)
+            arquivo.truncate()
+
 
 
 #Frame Corpo
@@ -134,10 +185,10 @@ b_adicionar.place(x=300, y=50)
 b_remover = Button(frame_corpo, command=remover_site, text='Remover', width=10, height=1, font=('Ivy 8 bold'), relief=RAISED, overrelief=RIDGE, bg=cor_5, fg=cor_1)
 b_remover.place(x=300, y=100)
 #Botão caixa de Desbloquear
-b_desbloquear = Button(frame_corpo, text='Desbloquear', width=10, height=1, font=('Ivy 8 bold'), relief=RAISED, overrelief=RIDGE, bg=cor_2, fg=cor_1)
+b_desbloquear = Button(frame_corpo, command=desbloquear_site, text='Desbloquear', width=10, height=1, font=('Ivy 8 bold'), relief=RAISED, overrelief=RIDGE, bg=cor_2, fg=cor_1)
 b_desbloquear.place(x=300, y=150)
 #Botão caixa de Bloquear
-b_bloquear = Button(frame_corpo, text='Bloquear', width=10, height=1, font=('Ivy 8 bold'), relief=RAISED, overrelief=RIDGE, bg=cor_3, fg=cor_1)
+b_bloquear = Button(frame_corpo, command=bloquear_site, text='Bloquear', width=10, height=1, font=('Ivy 8 bold'), relief=RAISED, overrelief=RIDGE, bg=cor_3, fg=cor_1)
 b_bloquear.place(x=300, y=200)
 
 #Criando a área da lista onde ficará a relação dos sites bloqueados
